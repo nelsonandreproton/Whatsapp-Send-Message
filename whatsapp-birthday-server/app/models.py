@@ -9,8 +9,19 @@ class SendMessageRequest(BaseModel):
     )
     message: str = Field(
         ...,
-        description="Texto da mensagem a enviar",
+        description=(
+            "Texto da mensagem. Se 'phone' for fornecido, a menção @número "
+            "é inserida automaticamente no início."
+        ),
         examples=["🎂 Hoje é aniversário da Ana! Parabéns! 🎉"],
+    )
+    phone: str | None = Field(
+        default=None,
+        description=(
+            "Número de telemóvel do aniversariante (com ou sem +, com indicativo). "
+            "Quando presente, a pessoa é mencionada no grupo e recebe notificação."
+        ),
+        examples=["351912345678", "+351912345678"],
     )
 
 

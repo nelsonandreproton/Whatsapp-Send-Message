@@ -45,7 +45,18 @@ async def send_message(
     """
     url = f"{settings.evolution_api_url}/message/sendText/{settings.evolution_instance}"
     headers = {"apikey": settings.evolution_api_key}
-    payload = {"number": request.group_id, "text": request.message}
+
+    # Normalizar número: remover +, espaços e hífens (ex: +351 912-345-678 → 351912345678)
+    mention_number = None
+    text = request.message
+    if request.phone:
+        mention_number = request.phone.replace("+", "").replace(" ", "").replace("-", "")
+        text = f"@{mention_number} {request.message}"
+
+    payload: dict = {"number": request.group_id, "text": text}
+    if mention_number:
+        # Evolution API requer o sufixo @s.whatsapp.net na lista de menções
+        payload["mentioned"] = [f"{mention_number}@s.whatsapp.net"]
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
