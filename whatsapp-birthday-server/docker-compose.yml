@@ -10,6 +10,14 @@ services:
       - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
     volumes:
       - evolution_data:/evolution/instances
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 128M
 
   birthday-server:
     build: .
@@ -23,6 +31,20 @@ services:
       - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-aniversarios}
     depends_on:
       - evolution-api
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
 
 volumes:
   evolution_data:
