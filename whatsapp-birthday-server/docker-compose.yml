@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  evolution-api:
+    image: atendai/evolution-api:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+    volumes:
+      - evolution_data:/evolution/instances
+
+  birthday-server:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY=${MIDDLEWARE_API_KEY}
+      - EVOLUTION_API_URL=http://evolution-api:8080
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-aniversarios}
+    depends_on:
+      - evolution-api
+
+volumes:
+  evolution_data:
